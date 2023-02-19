@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <style>
+            table thead th,
+            table tbody td {
+                font-size: 40;
+                padding: 30px;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+                text-align: center;
+            }
+            table tbody td:last-child {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+
+        <table width="">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Currently serving</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Window 1</td>
+                    <td id="window1QueueNum"></td>
+                </tr>
+                <tr>
+                    <td>Window 2</td>
+                    <td id="window2QueueNum"></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <script>
+            axios.get(`http://localhost/queue`)
+                .then(response => {
+                    response.data.map(function(d) {
+                        document.getElementById(`window${d.window}QueueNum`).innerHTML = d.queueNumber
+                    })
+                })
+
+            let socket = new WebSocket('ws://localhost:80')
+
+            socket.addEventListener('open', function() {
+                console.log('connected to ws server')
+            })
+
+            socket.addEventListener('message', function(event) {
+                let info = JSON.parse(event.data)
+                info.map(function(d) {
+                    document.getElementById(`window${d.window}QueueNum`).innerHTML = d.queueNumber
+                })
+
+                for (i = 1; i <= 2; i++) {
+                    let q = info.filter(q => q.window == i).shift()
+                    document.getElementById(`window${i}QueueNum`).innerHTML = q ? q.queueNumber : ''
+                }
+
+                console.log('message from server ', event.data)
+            })
+
+        </script>
+    </body>
+</html>

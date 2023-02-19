@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        
+        <button onclick="send(1)">Queue window 1</button>
+        <button onclick="send(2)">Queue window 2</button>
+       
+        <script>
+            function send(window) {
+                axios.get(`http://localhost/windows/${window}/queue`)
+                .then(function (response) {
+                    alert(`Created queue #${response.data.queueNumber}`);
+                })
+            }
+
+            let socket = new WebSocket('ws://localhost:80')
+
+            socket.addEventListener('open', function() {
+                console.log('connected to ws server')
+            })
+
+            socket.addEventListener('message', function(data) {
+                console.log('message from server ', event.data)
+            })
+
+            // function send() {
+            //     socket.send(JSON.stringify({
+            //         'action': 'queue',
+            //         'params': {
+            //             'window': 1,
+            //         }
+            //     }))
+            // }
+
+            // function finish(queueNumber) {
+            //     socket.send(JSON.stringify({
+            //         'action': 'finish',
+            //         'params': {
+            //             'window': 1,
+            //             'queueNumber': queueNumber
+            //         }
+            //     }))
+            // }
+        </script>
+    </body>
+</html>

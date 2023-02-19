@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        
+        Currently serving <span id="queue"></span>. <button onclick="finish(1)">Finish</button>
+        <button onclick="next()">Call next in queue</button>
+    
+        <script>
+            let windowNumber = 2
+
+            axios.get(`http://localhost/queue`)
+                .then(response => {
+                    let win = response.data.filter(w => w.window == windowNumber).shift()
+                    let qNumber = win ? win.queueNumber : ''
+                    showQueueNumber(qNumber)
+                })
+
+            function showQueueNumber(q) {
+                document.getElementById('queue').innerHTML = q
+            }
+
+            let socket = new WebSocket('ws://localhost:80')
+
+            socket.addEventListener('open', function() {
+                console.log('connected to ws server')
+            })
+
+            socket.addEventListener('message', function(event) {
+                let info = JSON.parse(event.data)
+                let win = info.filter(w => w.window == windowNumber).shift()
+                let qNumber = win ? win.queueNumber : ''
+                showQueueNumber(qNumber)
+                console.log('message from server ', event.data)
+            })
+
+            function finish() {
+                let queueNumber = parseInt(document.getElementById('queue').innerHTML)
+               
+                axios.get(`http://localhost/windows/${windowNumber}/queue/${queueNumber}/finish`)
+                .then(response => {
+                    alert(`Finished queue #${queueNumber}`)
+                })
+            }
+
+            function next() {
+                axios.get(`http://localhost/windows/${windowNumber}/queue/next`)
+                .then(response => {
+                    alert(`Called next in queue`)
+                })
+            }
+        </script>
+    </body>
+</html>

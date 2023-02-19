@@ -1,0 +1,37 @@
+<html>
+    <head></head>
+    <body>
+        <button onclick="send()">Send</button>
+        <button onclick="finish(document.getElementById('queuenumber').value)">Finish</button><input type="text" id="queuenumber">
+        <script>
+            let socket = new WebSocket('ws://localhost:80')
+
+            socket.addEventListener('open', function() {
+                console.log('connected to ws server')
+            })
+
+            socket.addEventListener('message', function(data) {
+                console.log('message from server ', event.data)
+            })
+
+            function send() {
+                socket.send(JSON.stringify({
+                    'action': 'queue',
+                    'params': {
+                        'window': 1,
+                    }
+                }))
+            }
+
+            function finish(queueNumber) {
+                socket.send(JSON.stringify({
+                    'action': 'finish',
+                    'params': {
+                        'window': 1,
+                        'queueNumber': queueNumber
+                    }
+                }))
+            }
+        </script>
+    </body>
+</html>
