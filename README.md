@@ -10,5 +10,6 @@ Queue for different windows for processing
 
 
 Initialization 
+
     - Run `npm install`
     - Start server by running `nodejs server/index.js`
