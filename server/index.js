@@ -15,8 +15,8 @@ app.get('/', function (req, res) {
     res.send('Hello World')
 })
 
-app.get('/windows/:num/queue', (req, res) => {
-    queue(req.params.num).then(queue => {
+app.get('/windows/queue', (req, res) => {
+    queue().then(queue => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(queue));
     })
@@ -70,8 +70,9 @@ function callNextQueue(window) {
                     if (window == q.window && q.serving == 1) {
                         q.serving = -1
                     }
-                    if (window == q.window && q.serving == 0 && !done) {
+                    if (q.serving == 0 && !done) {
                         q.serving = 1
+                        q.window = window
                         done = 1
                     }
                     return q
@@ -104,22 +105,20 @@ function getQueueData() {
 // create queue
 function queue(window) {
     return new Promise(resolve => {
-        fs.readFile(queueFile, 'utf8', function(err, queueStr) {
-            getQueueData().then(qinfo => {
+        getQueueData().then(qinfo => {
 
-                let qnumber = qinfo.reduce((acc, curval) => acc = curval.queueNumber, 0)
+            let qnumber = qinfo.reduce((acc, curval) => acc = curval.queueNumber, 0)
 
-                let newQueue = new queueData({
-                    queueNumber: qnumber + 1,
-                    window: window
-                })
-    
-                qinfo.push(newQueue)
-
-                updateQueueInfo(qinfo)
-                broadcast()
-                resolve(newQueue)
+            let newQueue = new queueData({
+                queueNumber: qnumber + 1,
+                window: null
             })
+
+            qinfo.push(newQueue)
+
+            updateQueueInfo(qinfo)
+            broadcast()
+            resolve(newQueue)
         })
     })
 }
@@ -131,6 +130,7 @@ function finish(window, queue) {
         queueInfo = queueInfo.map(q => {
             if (q.queueNumber == queue) {
                 q.serving = -1
+                q.window = window
             }
             return q
         })

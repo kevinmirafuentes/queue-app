@@ -4,12 +4,10 @@
     </head>
     <body>
         
-        <button onclick="send(1)">Queue window 1</button>
-        <button onclick="send(2)">Queue window 2</button>
-       
+        <button onclick="send()">Create queue</button>
         <script>
-            function send(window) {
-                axios.get(`http://localhost/windows/${window}/queue`)
+            function send() {
+                axios.get(`http://localhost/windows/queue`)
                 .then(function (response) {
                     alert(`Created queue #${response.data.queueNumber}`);
                 })

@@ -13,3 +13,4 @@ Initialization
 
     - Run `npm install`
     - Start server by running `nodejs server/index.js`
+    - Set _queue-info.txt to []
